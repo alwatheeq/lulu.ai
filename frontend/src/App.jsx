@@ -35,36 +35,41 @@ const AdminRoute = ({ children }) => {
 const AppRoutes = () => {
   const { user, loading } = useAuth();
 
-  if (loading) return null;
-
-  // Experts/Coaches get the Pro platform directly
-  if (user?.role === 'coach' || user?.role === 'nutritionist' || user?.role === 'expert') {
+  if (loading) {
     return (
-      <Routes>
-        <Route path="/" element={<ProtectedRoute><ExpertDashboard /></ProtectedRoute>} />
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+      <div className="min-h-screen bg-black flex items-center justify-center text-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xl font-serif">Verifying Session...</p>
+        </div>
+      </div>
     );
   }
 
-  // Regular users and admins get the standard layout
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+      <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
 
-      <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-        <Route index element={<Dashboard />} />
-        <Route path="scan" element={<Scanner />} />
-        <Route path="workouts" element={<Exercises />} />
-        <Route path="coach" element={<Coach />} />
-        <Route path="community" element={<Community />} />
-        <Route path="progress" element={<Progress />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="meals" element={<MealsLog />} />
-        <Route path="admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-        <Route path="*" element={<NotFound />} />
-      </Route>
+      {/* Experts/Coaches Platform */}
+      {(user?.role === 'coach' || user?.role === 'nutritionist' || user?.role === 'expert') ? (
+        <Route path="/" element={<ProtectedRoute><ExpertDashboard /></ProtectedRoute>} />
+      ) : (
+        /* Regular User Platform */
+        <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+          <Route index element={<Dashboard />} />
+          <Route path="scan" element={<Scanner />} />
+          <Route path="workouts" element={<Exercises />} />
+          <Route path="coach" element={<Coach />} />
+          <Route path="community" element={<Community />} />
+          <Route path="progress" element={<Progress />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="meals" element={<MealsLog />} />
+          <Route path="admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        </Route>
+      )}
+
+      <Route path="*" element={user ? <Navigate to="/" /> : <Navigate to="/login" />} />
     </Routes>
   );
 };

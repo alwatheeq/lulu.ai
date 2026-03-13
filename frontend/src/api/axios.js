@@ -1,7 +1,16 @@
 import axios from 'axios';
 
+let baseUrl = import.meta.env.VITE_API_URL || '/api';
+
+// Professional check: If the URL is absolute but doesn't end in /api, append it
+if (baseUrl.startsWith('http') && !baseUrl.includes('/api')) {
+    baseUrl = baseUrl.endsWith('/') ? `${baseUrl}api` : `${baseUrl}/api`;
+}
+
+console.log('Lulu API connecting to:', baseUrl);
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || '/api', // Detects cloud backend URL automatically
+    baseURL: baseUrl,
     headers: {
         'Content-Type': 'application/json',
     },

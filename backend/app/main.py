@@ -31,10 +31,6 @@ app.add_middleware(
 )
 
 # The root health endpoints remain at the top level
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to Lulu.ai Backend - Powered by Claude AI"}
-
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "ai_engine": "Claude 3.5 Sonnet"}

@@ -526,7 +526,7 @@ const AIChat = ({ client, lang }) => {
 
 // --- EXPERT DASHBOARD ---
 const ExpertDashboard = () => {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const { language: lang, toggleLanguage, dir } = useLanguage();
     const [tab, setTab] = useState("scanner");
     const [clients, setClients] = useState([]);
@@ -632,8 +632,10 @@ const ExpertDashboard = () => {
 
                             <Btn variant="primary" onClick={() => setShowForm(true)}>{t.addFirst}</Btn>
 
+                            <Btn variant="primary" onClick={() => setShowForm(true)}>{t.addFirst}</Btn>
+
                             <button
-                                onClick={() => { localStorage.removeItem('lulu_token'); window.location.href = '/login'; }}
+                                onClick={logout}
                                 className="text-xs text-slate-500 hover:text-red-400 transition-colors font-bold uppercase tracking-widest mt-4"
                             >
                                 {t.signOut} 🚪
@@ -673,7 +675,7 @@ const ExpertDashboard = () => {
                                         ))}
                                     </div>
                                     <button
-                                        onClick={() => { localStorage.removeItem('lulu_token'); window.location.href = '/login'; }}
+                                        onClick={logout}
                                         className="p-2.5 rounded-xl bg-red-500/5 text-red-500 hover:bg-red-500/10 border border-red-500/10 transition-all text-xs font-bold"
                                         title={T[lang].signOut}
                                     >
