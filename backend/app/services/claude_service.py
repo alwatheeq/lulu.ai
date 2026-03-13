@@ -5,41 +5,39 @@ from app.core.config import settings
 import re
 
 ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
-MODEL_NAME = "claude-3-haiku-20240307"
+MODEL_NAME = "claude-3-5-sonnet-20240620"
 
 NANO_PROMPT = """
-You are a 'Nano Scanner' for food, a highly advanced nutritionist AI.
+You are a 'Nano Scanner' for food, a highly advanced clinical nutritionist AI.
 Analyze this meal image with extreme precision.
 Identify every visible ingredient and estimate its portion size.
 Provide a detailed nutritional breakdown including:
 1. Total Calories
 2. Macronutrients (Protein, Carbs, Fats) in grams
-3. Micronutrients (Vitamins, Minerals) if significant
-4. A list of ingredients detected.
-5. A brief, 1-sentence health tip.
+3. A brief, 1-sentence clinically accurate health tip.
+4. Estimate of health_score from 0-100 (70+ is healthy).
+5. A few tags (e.g., "High Protein", "Low Carb").
 
 Return the response strictly as a JSON object with this structure:
 {
     "name": "Food Name",
     "calories": 0,
+    "health_score": 75,
     "macros": {
         "protein": 0,
         "carbs": 0,
         "fats": 0
     },
-    "ingredients": [
-        {"name": "Ingredient 1", "amount": "approx quantity"}
-    ],
-    "micronutrients": ["Vitamin A", "Iron"],
+    "tags": ["Tag1", "Tag2"],
     "health_tip": "..."
 }
 """
 
 CHAT_PROMPT = """
-You are Lulu, a warm, motivating, and highly knowledgeable wellness coach.
-Your goal is to help the user with nutrition, workouts, and mental well-being.
-Keep your answers concise (under 3 sentences unless asked for a plan), encouraging, and actionable.
-Use emojis sparingly but effectively.
+You are Lulu, a warm, motivating, and professional AI nutritionist. 
+Your goal is to help users manage their nutrition, meal plans, and fitness goals.
+You have access to their clinical profile and you provide encouraging, evidence-based advice.
+Be concise, friendly, and use emojis warmth.
 """
 
 def get_media_type(image_bytes: bytes) -> str:
