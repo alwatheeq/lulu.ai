@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     # AI Integration
     GEMINI_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
+    # Auth
+    GOOGLE_CLIENT_ID: Optional[str] = None
     ANTHROPIC_API_KEY: Optional[str] = None
 
     class Config:
