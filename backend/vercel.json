@@ -11,5 +11,6 @@
       "src": "/(.*)",
       "dest": "app/main.py"
     }
-  ]
+  ],
+  "buildCommand": null
 }
