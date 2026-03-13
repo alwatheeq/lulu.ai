@@ -1,5 +1,5 @@
 fastapi
-uvicorn
+uvicorn[standard]
 python-multipart
 pydantic
 sqlalchemy
@@ -12,7 +12,4 @@ anthropic
 pydantic-settings
 email-validator
 gunicorn
-uvicorn[standard]
 psycopg2-binary
-sqlalchemy
-alembic
