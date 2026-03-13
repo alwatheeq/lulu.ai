@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     # AI Integration
     GEMINI_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
-    ANTHROPIC_API_KEY: str
+    ANTHROPIC_API_KEY: Optional[str] = None
 
     class Config:
         case_sensitive = True
