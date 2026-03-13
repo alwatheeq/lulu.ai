@@ -13,3 +13,6 @@ pydantic-settings
 email-validator
 gunicorn
 uvicorn[standard]
+psycopg2-binary
+sqlalchemy
+alembic

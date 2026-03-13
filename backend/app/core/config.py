@@ -14,8 +14,10 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     ANTHROPIC_API_KEY: str
 
-    model_config = {
-        "env_file": ".env"
-    }
+    class Config:
+        case_sensitive = True
+        env_file = ".env"
+        env_file_encoding = 'utf-8'
+        extra = 'ignore' # Allow extra env vars from Vercel without crashing
 
 settings = Settings()
