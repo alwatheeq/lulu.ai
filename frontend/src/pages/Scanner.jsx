@@ -105,21 +105,21 @@ export default function LuluNutriScan() {
             const d = res.data?.data || res.data;
             const parsed = {
                 foodName: d.name || d.foodName || "Unknown Food",
-                confidence: d.confidence || 90,
+                confidence: d.confidence || 95,
                 servingSize: d.servingSize || "1 serving",
                 calories: d.calories || 0,
                 protein: d.macros?.protein ?? d.protein ?? 0,
-                sugar: d.sugar || 0,
+                sugar: d.macros?.sugar ?? d.sugar ?? 0,
                 carbs: d.macros?.carbs ?? d.carbs ?? 0,
                 fat: d.macros?.fats ?? d.fats ?? d.fat ?? 0,
-                fiber: d.fiber || 0,
-                sodium: d.sodium || 0,
+                fiber: d.macros?.fiber ?? d.fiber ?? 0,
+                sodium: d.macros?.sodium ?? d.sodium ?? d.sodium ?? 0,
                 ingredients: Array.isArray(d.ingredients)
                     ? d.ingredients.map(i => (typeof i === "string" ? i : i.name))
                     : [],
-                healthScore: d.healthScore || 70,
+                healthScore: d.health_score || d.healthScore || 75,
                 tags: d.tags || [],
-                insight: d.health_tip || d.insight || ""
+                insight: d.health_tip || d.insight || "Balanced meal choice!"
             };
             setResult(parsed);
         } catch (e) {
