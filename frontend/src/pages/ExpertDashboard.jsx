@@ -7,8 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 // --- Translations ---
 const T = {
     en: {
-        appName: "lulu.nutriscan Pro", appSub: "Nutritionist Pro Platform",
-        welcome: "Welcome to lulu.nutriscan Pro 🌸", welcomeSub: "Your complete AI-powered nutritionist platform",
+        appName: "lulu.pro", appSub: "Nutritionist Pro Platform",
+        welcome: "Welcome to lulu.pro 🌸", welcomeSub: "Your complete AI-powered nutritionist platform",
         noClients: "No clients yet", noClientsSub: "Add your first client to start managing their nutrition",
         addFirst: "➕ Add First Client", selectClient: "Select a client to begin",
         yourClients: "Your Clients", clients: "Clients", aiPowered: "AI", pro: "Pro",
@@ -72,8 +72,8 @@ const T = {
         deleteConfirm: "Delete this client?", signOut: "Sign Out",
     },
     ar: {
-        appName: "لولو.نيوتري سكان برو", appSub: "منصة أخصائي التغذية الاحترافية",
-        welcome: "مرحباً بك في لولو.نيوتري سكان برو 🌸", welcomeSub: "منصتك الشاملة لإدارة التغذية بالذكاء الاصطناعي",
+        appName: "لولو.برو", appSub: "منصة أخصائي التغذية الاحترافية",
+        welcome: "مرحباً بك في لولو.برو 🌸", welcomeSub: "منصتك الشاملة لإدارة التغذية بالذكاء الاصطناعي",
         noClients: "لا يوجد عملاء بعد", noClientsSub: "أضف أول عميل لبدء إدارة تغذيتهم",
         addFirst: "➕ إضافة أول عميل", selectClient: "اختر عميلاً للبدء",
         yourClients: "عملاؤك", clients: "العملاء", aiPowered: "ذكاء اصطناعي", pro: "برو",
@@ -112,7 +112,13 @@ const T = {
             generate: "✨ إنشاء الخطة", generating: "جاري الإنشاء...", days: "أيام",
             dailyCalories: "السعرات اليومية", protein: "بروتين", carbs: "كارب", fat: "دهون",
             tips: "💡 نصائح المختص", day: "اليوم",
-            mealTypes: { Breakfast: "فطو", Lunch: "غداء", Dinner: "عشاء", Snack: "وجبة خفيفة" },
+            mealTypes: { Breakfast: "فطور", Lunch: "غداء", Dinner: "عشاء", Snack: "وجبة خفيفة" },
+        },
+        journal: {
+            title: "📓 مجلة الطعام", entries: "{n} وجبة مسجلة",
+            all: "الكل", today: "اليوم", week: "الأسبوع",
+            totalCalories: "مجموع السعرات", avgScore: "متوسط نقاط الصحة", mealsLogged: "وجبات مسجلة",
+            empty: "لا توجد مدخلات بعد", emptySub: "امسح طعامك لبدء التسجيل",
         },
         chat: {
             title: "💬 مساعد التغذية الذكي", sub: "نصائح مخصصة لـ {name}",
@@ -202,6 +208,7 @@ const FoodScanner = ({ client, lang }) => {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
+    const [logged, setLogged] = useState(false);
     const t = T[lang].scanner;
     const dir = lang === "ar" ? "rtl" : "ltr";
     const fileRef = useRef();
@@ -213,6 +220,7 @@ const FoodScanner = ({ client, lang }) => {
         reader.readAsDataURL(file);
         setResult(null);
         setError(null);
+        setLogged(false);
     };
 
     const analyzeImg = async () => {
@@ -249,15 +257,18 @@ const FoodScanner = ({ client, lang }) => {
                 carbs: result.macros?.carbs || 0,
                 fats: result.macros?.fats || 0,
                 meal_type: "Scan Analysis",
-                image_url: null, // We'll skip uploading the full image for now
-                health_tip: result.health_tip
+                image_url: null,
+                health_tip: result.health_tip,
+                health_score: result.health_score || 75
             });
-            alert(t.logged.replace("{name}", client.name));
+            setLogged(true);
         } catch (err) {
             console.error(err);
             alert("Failed to log entry");
         }
     };
+
+    const hColor = result ? (result.health_score >= 70 ? C.green : result.health_score >= 45 ? C.yellow : "#f87171") : C.pink;
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" dir={dir}>
@@ -277,8 +288,14 @@ const FoodScanner = ({ client, lang }) => {
                     <div className="space-y-4">
                         <div className="relative rounded-xl overflow-hidden aspect-video bg-black">
                             <img src={image} className="w-full h-full object-contain" alt="food" />
+                            {loading && (
+                                <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
+                                    <Spinner />
+                                    <span className="text-xs font-bold text-pink-400">{t.analyzing}</span>
+                                </div>
+                            )}
                             <button
-                                onClick={() => setImage(null)}
+                                onClick={() => { setImage(null); setResult(null); setLogged(false); }}
                                 className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-lg text-slate-400 hover:text-white"
                             >
                                 ✕
@@ -303,34 +320,46 @@ const FoodScanner = ({ client, lang }) => {
                     </div>
                 ) : (
                     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                        <div className="flex justify-between items-start">
-                            <div>
+                        <div className={`flex justify-between items-start ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                            <div className={dir === 'rtl' ? 'text-right' : ''}>
                                 <h2 className="text-xl font-black text-white">{result.name}</h2>
                                 <p className="text-xs text-slate-500">serving size estimated</p>
                             </div>
-                            <div className="text-right">
+                            <div className={dir === 'rtl' ? 'text-left' : 'text-right'}>
                                 <div className="text-3xl font-black text-pink-500 leading-none">{result.calories}</div>
                                 <span className="text-[10px] text-slate-500 uppercase font-bold">{t.kcal}</span>
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-2">
-                            <Badge color={C.green}>Health Score: {result.health_score || 75}/100</Badge>
-                            {result.tags?.map(tag => <Badge key={tag} color={C.blue}>{tag}</Badge>)}
+                        <div className={`flex flex-wrap gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                            <Badge color={hColor}>Health Score: {result.health_score || 75}/100</Badge>
+                            {result.tags?.map((tag, idx) => <Badge key={idx} color={C.blue}>{tag}</Badge>)}
                         </div>
 
-                        <div className="space-y-1">
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-2">
                             <MacroBar label={t.protein} value={result.macros?.protein || 0} max={60} color={C.pink} dir={dir} />
                             <MacroBar label={t.carbs} value={result.macros?.carbs || 0} max={100} color={C.purple} dir={dir} />
                             <MacroBar label={t.fat} value={result.macros?.fats || 0} max={50} color={C.yellow} dir={dir} />
+                            <div className="flex flex-col justify-center">
+                                <div className={`flex justify-between text-[10px] uppercase font-bold text-slate-500 mb-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                                    <span>Sodium</span>
+                                    <span className="text-slate-300">{result.sodium || 0}mg</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="p-4 bg-pink-500/5 border border-pink-500/10 rounded-xl">
-                            <p className="text-xs leading-relaxed text-pink-200/80 italic">
-                                💡 {result.health_tip || "Excellent meal choice! This provides a balanced profile of macros."}
+                            <p className={`text-xs leading-relaxed text-pink-200/80 italic ${dir === 'rtl' ? 'text-right' : ''}`}>
+                                💡 {result.health_tip || "Analysis complete."}
                             </p>
                         </div>
-                        <Btn full variant="green" onClick={logToJournal}>{t.logBtn}</Btn>
+                        {logged ? (
+                            <div className="w-full py-2.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 text-center text-sm font-bold">
+                                {t.logged.replace("{name}", client.name)}
+                            </div>
+                        ) : (
+                            <Btn full variant="green" onClick={logToJournal}>{t.logBtn}</Btn>
+                        )}
                     </div>
                 )}
             </div>
@@ -485,10 +514,9 @@ const AIChat = ({ client, lang }) => {
         setLoading(true);
 
         try {
-            const prompt = `You are Lulu, a pro nutritionist assistant helping with client ${client.name} (Goal: ${client.goal}). Answer this: ${userMsg}. Keep it short and pro.`;
-            const res = await api.post("/meals/ask", { prompt });
-            if (res.data.success) {
-                setMessages(prev => [...prev, { role: "assistant", content: res.data.reply }]);
+            const res = await api.post("/meals/chat", { prompt: userMsg });
+            if (res.data.response) {
+                setMessages(prev => [...prev, { role: "assistant", content: res.data.response }]);
             }
         } catch (e) {
             setMessages(prev => [...prev, { role: "assistant", content: "Error connecting to AI." }]);
@@ -507,8 +535,24 @@ const AIChat = ({ client, lang }) => {
                         </div>
                     </div>
                 ))}
-                {loading && <div className="text-xs text-slate-500 animate-pulse italic">Lulu is typing...</div>}
+                {loading && (
+                    <div className="flex items-center gap-2 text-xs text-slate-500 italic animate-pulse">
+                        <div className="w-4 h-4 rounded-full border border-pink-500/30 border-t-pink-500 animate-spin" />
+                        Lulu is thinking...
+                    </div>
+                )}
                 <div ref={scrollRef} />
+            </div>
+            <div className="grid grid-cols-2 gap-2 mb-4">
+                {t.suggestions?.map((s, idx) => (
+                    <button
+                        key={idx}
+                        onClick={() => setInput(s)}
+                        className="text-[10px] p-2 bg-white/5 border border-white/10 rounded-lg text-slate-400 hover:text-pink-400 hover:border-pink-500/30 transition-all text-left"
+                    >
+                        {s}
+                    </button>
+                ))}
             </div>
             <div className="flex gap-2 p-1 bg-slate-950 rounded-2xl border border-white/10">
                 <input
@@ -516,7 +560,7 @@ const AIChat = ({ client, lang }) => {
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && handleSend()}
                     placeholder={t.placeholder}
-                    className="flex-1 bg-transparent px-4 py-2 text-sm focus:outline-none"
+                    className={`flex-1 bg-transparent px-4 py-2 text-sm focus:outline-none ${dir === 'rtl' ? 'text-right' : 'text-left'}`}
                 />
                 <Btn variant="primary" small onClick={handleSend} disabled={loading}>Send</Btn>
             </div>

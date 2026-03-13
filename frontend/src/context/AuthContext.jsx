@@ -61,6 +61,19 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const loginWithGoogle = async (credential) => {
+        try {
+            const response = await api.post('/login/google', { token: credential });
+            const { access_token } = response.data;
+            localStorage.setItem('lulu_token', access_token);
+            await fetchProfile();
+            return true;
+        } catch (error) {
+            console.error("Google login failed:", error);
+            throw error;
+        }
+    };
+
     const register = async (email, password, fullName, role = "user") => {
         try {
             const response = await api.post('/users/', {
@@ -104,6 +117,7 @@ export const AuthProvider = ({ children }) => {
     const value = {
         user,
         login,
+        loginWithGoogle,
         register,
         logout,
         updatePlan,

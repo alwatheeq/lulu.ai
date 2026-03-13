@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Sparkles, ArrowRight, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Register = () => {
     const [fullName, setFullName] = useState('');
@@ -11,8 +12,21 @@ const Register = () => {
     const [role, setRole] = useState('user'); // user, coach, nutritionist
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { register } = useAuth();
+    const { register, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        setLoading(true);
+        setError(null);
+        try {
+            await loginWithGoogle(credentialResponse.credential);
+            navigate('/');
+        } catch (err) {
+            setError("Google Registration failed. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -124,6 +138,25 @@ const Register = () => {
                             </>
                         )}
                     </button>
+
+                    <div className="relative my-8">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-white/5"></div>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-zinc-900 px-4 text-gray-500 font-bold tracking-widest">OR</span>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-center">
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => setError("Google Login Failed")}
+                            theme="filled_black"
+                            shape="pill"
+                            width="100%"
+                        />
+                    </div>
                 </form>
 
                 <div className="text-center mt-8">
